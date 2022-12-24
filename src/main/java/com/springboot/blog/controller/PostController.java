@@ -4,11 +4,10 @@ import com.springboot.blog.contracts.PostDto;
 import com.springboot.blog.contracts.PostResponse;
 import com.springboot.blog.contracts.SearchRequest;
 import com.springboot.blog.service.IPostService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -21,7 +20,7 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto) {
+    public ResponseEntity<PostDto> createPost(@Valid @RequestBody PostDto postDto) {
         PostDto post = iPostService.createPost(postDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(post);
@@ -29,10 +28,9 @@ public class PostController {
 
     @GetMapping
     @ResponseBody
-    public ResponseEntity<PostResponse> getPosts( SearchRequest searchRequest)
-    {
-        PostResponse posts = iPostService.getAllPosts(searchRequest.getPageNo(),searchRequest.getPageSize(),searchRequest.getSortBy()
-                ,searchRequest.getSortDir());
+    public ResponseEntity<PostResponse> getPosts(SearchRequest searchRequest) {
+        PostResponse posts = iPostService.getAllPosts(searchRequest.getPageNo(), searchRequest.getPageSize(), searchRequest.getSortBy()
+                , searchRequest.getSortDir());
 
         System.out.println(searchRequest.toString());
         return ResponseEntity.status(HttpStatus.OK).body(posts);
@@ -58,7 +56,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostDto> updatePostById(@RequestBody PostDto postDto, @PathVariable(name = "id") long id) {
+    public ResponseEntity<PostDto> updatePostById(@Valid @RequestBody PostDto postDto, @PathVariable(name = "id") long id) {
         PostDto posts = iPostService.updatePost(postDto, id);
 
         return ResponseEntity.status(HttpStatus.OK).body(posts);

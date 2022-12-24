@@ -6,8 +6,7 @@ import com.springboot.blog.entity.Post;
 import com.springboot.blog.exceptions.ResourceNotFoundException;
 import com.springboot.blog.repository.PostRepository;
 import com.springboot.blog.service.IPostService;
-import lombok.Builder;
-import lombok.Data;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,19 +20,18 @@ import java.util.stream.Collectors;
 @Service
 public class PostService implements IPostService {
     private PostRepository postRepository;
+    private ModelMapper modelMapper;
 
     @Autowired
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
     public PostDto createPost(PostDto postDto) {
-        Post newPost = Post.builder()
-                .description(postDto.getDescription())
-                .title(postDto.getTitle())
-                .content(postDto.getContent())
-                .build();
+        Post newPost = modelMapper.map(postDto, Post.class);
+
         newPost = postRepository.save(newPost);
         postDto.setId(newPost.getId());
         return postDto;
@@ -49,8 +47,7 @@ public class PostService implements IPostService {
         Page<Post> page = postRepository.findAll(pageable);
 
         List<PostDto> data = page.getContent()
-                .stream().map(c -> PostDto.builder().id(c.getId()).
-                        title(c.getTitle()).description(c.getDescription()).content(c.getContent()).build())
+                .stream().map(c -> modelMapper.map(c, PostDto.class))
                 .collect(Collectors.toList());
 
         PostResponse postResponse = PostResponse.builder().data(data).pageNo(page.getNumber()).
@@ -65,8 +62,8 @@ public class PostService implements IPostService {
 
     @Override
     public PostDto getAllPostById(long id) {
-        PostDto postDto = postRepository.findById(id).map(c -> PostDto.builder().id(c.getId()).
-                        title(c.getTitle()).description(c.getDescription()).content(c.getContent()).build()).
+
+        PostDto postDto = postRepository.findById(id).map(c -> modelMapper.map(c, PostDto.class)).
                 orElseThrow(() -> new ResourceNotFoundException(
                         "Post", "id", "" + id));
 
@@ -84,11 +81,7 @@ public class PostService implements IPostService {
 
         post = postRepository.save(post);
 
-        postDto = PostDto.builder()
-                .content(post.getContent())
-                .description(post.getDescription())
-                .title(post.getTitle())
-                .build();
+        postDto = modelMapper.map(post, PostDto.class);
 
 
         return postDto;

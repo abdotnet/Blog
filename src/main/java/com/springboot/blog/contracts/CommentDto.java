@@ -1,15 +1,22 @@
 package com.springboot.blog.contracts;
 
-import com.springboot.blog.entity.Post;
-import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Data;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class CommentDto {
     private long id;
+    @NotEmpty
+
     private String name;
-    private  String email;
-    private  String body;
+    @NotEmpty
+    @Email
+    private String email;
+    @NotEmpty
+    private String body;
 }

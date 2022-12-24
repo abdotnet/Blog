@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class CommentResponse<T> {
+public class PagedResponse<T> {
     private List<T> data;
     private int pageNo;
     private int pageSize;
