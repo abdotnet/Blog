@@ -7,6 +7,7 @@ import com.springboot.blog.entity.User;
 import com.springboot.blog.exceptions.BlogApiException;
 import com.springboot.blog.repository.RoleRepository;
 import com.springboot.blog.repository.UserRepository;
+import com.springboot.blog.security.JwtTokenProvider;
 import com.springboot.blog.service.IAuthService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +30,16 @@ public class AuthService implements IAuthService {
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
     private ModelMapper modelMapper;
-
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    public AuthService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
+    public AuthService(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.modelMapper = modelMapper;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -48,7 +50,9 @@ public class AuthService implements IAuthService {
 
         if (authentication.isAuthenticated()) {
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return "Login successful!";
+            String token = jwtTokenProvider.generateToken(authentication);
+
+            return token;
         } else
             return "Login failed!";
 
